@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="es-CR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faf5ee">
+  <title>Panel administrativo | Tienda Las Amapolas</title>
+  <meta name="description" content="Panel administrativo de Tienda Las Amapolas.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Panel administrativo | Tienda Las Amapolas">
+  <meta property="og:description" content="Administración del catálogo de Tienda Las Amapolas.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=85">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body[data-page="admin"] {
+      background: #f7f1ea;
+    }
+
+    .admin-shell {
+      width: min(1200px, calc(100% - 48px));
+      margin: 38px auto 88px;
+    }
+
+    .admin-topbar {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .admin-topbar h1 {
+      margin: 10px 0 0;
+      font: 500 clamp(34px, 4vw, 48px)/1.1 var(--serif);
+      letter-spacing: -1.5px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.55);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 999px;
+    }
+
+    .toolbar-pill strong {
+      color: var(--ink);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .stat-card {
+      position: relative;
+      padding: 22px 20px 18px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(35,31,28,.08);
+      box-shadow: 0 8px 18px rgba(35,31,28,.04);
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), #e68d35);
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 10px;
+      font: 600 clamp(26px, 2vw, 36px)/1.1 var(--serif);
+      letter-spacing: -1px;
+    }
+
+    .stat-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .trend-up { color: #1f7a4d; }
+    .trend-down { color: #b63d35; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(280px, .85fr);
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(35,31,28,.08);
+      box-shadow: 0 8px 18px rgba(35,31,28,.04);
+      padding: 22px 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font: 500 24px/1.2 var(--serif);
+      letter-spacing: -.6px;
+    }
+
+    .ghost-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .inventory-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .inventory-table th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .product-name {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 140px;
+    }
+
+    .product-name strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .product-name small {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .badge.good {
+      background: rgba(31,122,77,.1);
+      color: #1f7a4d;
+    }
+
+    .badge.warning {
+      background: rgba(194,59,43,.08);
+      color: #aa3d34;
+    }
+
+    .badge.low {
+      background: rgba(178,133,47,.12);
+      color: #826027;
+    }
+
+    .stock-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mini-button {
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .orders-list {
+      display: grid;
+      gap: 12px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 10px;
+      border: 1px solid var(--line);
+      background: rgba(250,245,238,.7);
+    }
+
+    .order-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .order-meta strong {
+      font-size: 14px;
+    }
+
+    .order-meta span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .order-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 4px 8px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .order-status.pending {
+      background: rgba(53,125,160,.1);
+      color: #1c5f86;
+    }
+
+    .order-status.paid {
+      background: rgba(31,122,77,.1);
+      color: #1f7a4d;
+    }
+
+    .order-status.shipped {
+      background: rgba(120,84,19,.1);
+      color: #775816;
+    }
+
+    .chart-wrap {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      height: 180px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .bar-col {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .bar {
+      width: 100%;
+      min-height: 24px;
+      background: linear-gradient(180deg, #f0c79f, #d98061 45%, #b04e39 100%);
+      border-radius: 10px 10px 0 0;
+      box-shadow: inset 0 -6px 18px rgba(35,31,28,.06);
+    }
+
+    .quick-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .quick-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      min-height: 50px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      background: rgba(250,245,238,.7);
+      color: var(--ink);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .quick-action span {
+      opacity: .8;
+      font-size: 13px;
+    }
+
+    .product-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .product-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .product-form label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .product-form input,
+    .product-form select {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .checkbox-row {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 10px;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      font-size: 14px !important;
+      color: var(--ink) !important;
+    }
+
+    .checkbox-row input {
+      width: 16px;
+      min-height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .product-form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .admin-login-panel {
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      padding: 24px 0;
+    }
+
+    .admin-login-card {
+      width: min(440px, 100%);
+      padding: 28px 24px;
+      background: rgba(255,255,255,.8);
+      border: 1px solid rgba(35,31,28,.08);
+      box-shadow: 0 12px 28px rgba(35,31,28,.06);
+    }
+
+    .admin-login-card h2 {
+      margin: 8px 0 18px;
+      font: 500 clamp(28px, 3vw, 36px)/1.1 var(--serif);
+      letter-spacing: -.8px;
+    }
+
+    .admin-login-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .admin-login-form label {
+      display: grid;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .admin-login-form input {
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      max-width: min(320px, calc(100vw - 32px));
+      padding: 12px 16px;
+      background: rgba(35,31,28,.94);
+      color: white;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 40;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 960px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .admin-shell {
+        width: min(100% - 20px, 1200px);
+      }
+
+      .admin-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .inventory-table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+  </style>
+  <script src="config.js" defer></script>
+  <script src="products-data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body data-page="admin">
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Las Amapolas, inicio">
+      <img src="assets/logo-amapolas.jpg" alt="Las Amapolas" width="90" height="64">
+      <span><small>La Guácima · desde 1987</small></span>
+    </a>
+    <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false"><span></span><span></span></button>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a href="index.html">Inicio</a>
+      <a href="productos.html">Productos</a>
+      <a href="index.html#historia">Nuestra historia</a>
+      <button class="login-button nav-login" type="button" data-login>Iniciar sesión</button>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-link" data-social="whatsapp" href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.8a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.4-4.7A8.5 8.5 0 1 1 20.5 11.8Z"/><path d="M8.2 7.8c.2-.4.5-.4.7-.4h.5c.2 0 .4.1.5.4l.8 1.8c.1.2.1.4-.1.6l-.6.7c-.2.2-.2.4 0 .6.4.7 1.1 1.4 1.8 1.8.2.1.4.1.6-.1l.8-.9c.2-.2.4-.2.6-.1l1.7.8c.3.1.4.3.4.5 0 .3-.2 1.1-.7 1.5-.5.4-1.1.6-1.8.5-.7-.1-1.5-.4-2.5-.9-1.4-.8-2.5-1.9-3.2-3.1-.7-1.1-.9-2.1-.8-2.8.1-.4.5-.9.8-1.1Z"/></svg></a>
+      <a class="icon-link" data-social="instagram" href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.7 6.5h.01"/></svg></a>
+      <button class="login-button header-login" type="button" data-login>Iniciar sesión</button>
+      <a class="cart-shortcut" href="carrito.html" aria-label="Ver carrito">Carrito <span class="cart-count">0</span></a>
+    </div>
+  </header>
+
+  <main class="admin-shell">
+    <section id="admin-login-panel" class="admin-login-panel">
+      <div class="admin-login-card">
+        <span class="section-kicker">Acceso de administrador</span>
+        <h2>Iniciar sesión</h2>
+        <form id="admin-login-form" class="admin-login-form">
+          <label>
+            Usuario
+            <input type="text" id="admin-username" name="username" autocomplete="username" required>
+          </label>
+          <label>
+            Contraseña
+            <span class="password-input-wrap">
+              <input type="password" id="admin-password" name="password" autocomplete="current-password" required>
+              <button class="password-visibility" type="button" id="toggle-admin-password" aria-controls="admin-password" aria-pressed="false">Mostrar</button>
+            </span>
+          </label>
+          <button class="button button-primary" type="submit">Entrar al panel</button>
+        </form>
+      </div>
+    </section>
+
+    <div id="admin-dashboard" class="hidden">
+      <section class="admin-topbar">
+        <div>
+          <span class="section-kicker">Panel administrativo</span>
+          <h1>Catálogo y stock</h1>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-pill">Productos <strong id="week-range">0</strong></div>
+          <button class="ghost-button" type="button" id="publish-button">Publicar cambios</button>
+          <button class="ghost-button" type="button" id="logout-button">Cerrar sesión</button>
+          <button class="ghost-button" type="button" id="add-product-button">Agregar producto</button>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Inventario</h2>
+            <button class="ghost-button" type="button" id="refresh-products">Actualizar</button>
+          </div>
+          <table class="inventory-table">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table-body"></tbody>
+          </table>
+        </article>
+
+        <aside class="panel">
+          <div class="panel-header">
+            <h2 id="editor-title">Editar producto</h2>
+          </div>
+          <form id="product-form" class="product-form">
+            <input type="hidden" id="product-id" name="id">
+            <div class="product-form-grid">
+              <label>
+                Nombre
+                <input type="text" id="product-name" name="name">
+              </label>
+              <label>
+                Precio (CRC)
+                <input type="number" id="product-price" name="price" min="0" step="100" required>
+              </label>
+              <label>
+                Foto del producto
+                <input type="file" id="product-image" name="image" accept="image/*">
+              </label>
+              <label>
+                Categoría
+                <select id="product-category" name="category" required></select>
+              </label>
+              <label>
+                Disponibilidad
+                <select id="product-availability" name="availability">
+                  <option value="available">Disponible</option>
+                  <option value="few">Pocas unidades</option>
+                  <option value="sold-out">Sin stock</option>
+                </select>
+              </label>
+              <label>
+                Stock
+                <input type="number" id="product-stock" name="stock" min="0" step="1" required>
+              </label>
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" id="product-featured" name="featured">
+              <span>Destacado</span>
+            </label>
+            <div class="product-form-actions">
+              <button class="button button-primary" type="submit">Guardar cambios</button>
+              <button class="button button-light" type="button" id="cancel-edit">Cancelar</button>
+            </div>
+          </form>
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const defaultCategories = ["Damas", "Caballeros", "Infantil", "Bebés", "Juguetería", "Librería y útiles escolares", "Hogar", "Navidad y regalos"];
+      let inventory = [];
+      let serverCategories = [...defaultCategories];
+
+      function formatPrice(value) {
+        return new Intl.NumberFormat("es-CR", { style: "currency", currency: "CRC", maximumFractionDigits: 0 }).format(Number(value) || 0);
+      }
+
+      function getStatus(stock) {
+        if (stock <= 0) return { label: "Sin stock", tone: "low" };
+        if (stock <= 10) return { label: "Poco", tone: "warning" };
+        return { label: "Bueno", tone: "good" };
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (character) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[character]);
+      }
+
+      function showToast(message) {
+        const toast = document.querySelector(".toast");
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add("visible");
+        window.clearTimeout(showToast.timer);
+        showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1800);
+      }
+
+      async function fetchJson(url, options = {}) {
+        const { headers: requestHeaders, ...requestOptions } = options;
+        const response = await fetch(url, {
+          ...requestOptions,
+          headers: { "Content-Type": "application/json", ...(requestHeaders || {}) }
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.message || "No se pudo completar la solicitud.");
+        return payload;
+      }
+
+      function renderCategoryOptions() {
+        const select = document.getElementById("product-category");
+        if (!select) return;
+        const categories = [...new Set([...serverCategories, ...defaultCategories])];
+        select.innerHTML = categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("");
+      }
+
+      function updateInventoryCount() {
+        const countElement = document.getElementById("week-range");
+        if (countElement) countElement.textContent = String(inventory.length);
+      }
+
+      function renderInventory() {
+        const inventoryBody = document.getElementById("inventory-table-body");
+        if (!inventoryBody) return;
+
+        inventoryBody.innerHTML = inventory.map((item) => {
+          const status = getStatus(Number(item.stock || 0));
+          return `
+            <tr>
+              <td>
+                <div class="product-name">
+                  <strong>${escapeHtml(item.name)}</strong>
+                  <small>${escapeHtml(item.category)}</small>
+                </div>
+              </td>
+              <td>${formatPrice(item.price)}</td>
+              <td>${Number(item.stock || 0)}</td>
+              <td><span class="badge ${status.tone}">${status.label}</span></td>
+              <td>
+                <div class="stock-actions">
+                  <button class="mini-button" type="button" data-stock-action="decrement" data-product-id="${escapeHtml(item.id)}" aria-label="Restar una unidad de ${escapeHtml(item.name)}">−</button>
+                  <button class="mini-button" type="button" data-stock-action="increment" data-product-id="${escapeHtml(item.id)}" aria-label="Sumar una unidad de ${escapeHtml(item.name)}">+</button>
+                  <button class="ghost-button" type="button" data-edit-product="${escapeHtml(item.id)}" style="min-height:28px; padding:6px 8px; margin-left:6px;">Editar</button>
+                  <button class="ghost-button" type="button" data-delete-product="${escapeHtml(item.id)}" style="min-height:28px; padding:6px 8px; margin-left:6px;">Eliminar</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      function fillForm(product) {
+        const form = document.getElementById("product-form");
+        if (!form) return;
+        const imageInput = document.getElementById("product-image");
+        document.getElementById("product-id").value = product.id;
+        document.getElementById("product-name").value = product.name;
+        document.getElementById("product-price").value = Number(product.price || 0);
+        imageInput.value = "";
+        imageInput.dataset.currentValue = product.image || "";
+        document.getElementById("product-category").value = product.category || defaultCategories[0];
+        document.getElementById("product-availability").value = product.availability || "available";
+        document.getElementById("product-stock").value = Number(product.stock || 0);
+        document.getElementById("product-featured").checked = Boolean(product.featured);
+        document.getElementById("editor-title").textContent = "Editar producto";
+      }
+
+      function resetForm() {
+        const form = document.getElementById("product-form");
+        if (!form) return;
+        form.reset();
+        const imageInput = document.getElementById("product-image");
+        imageInput.value = "";
+        imageInput.dataset.currentValue = "";
+        document.getElementById("product-id").value = "";
+        document.getElementById("product-category").value = defaultCategories[0];
+        document.getElementById("product-availability").value = "available";
+        document.getElementById("product-price").value = 0;
+        document.getElementById("product-stock").value = 0;
+        document.getElementById("editor-title").textContent = "Agregar producto";
+      }
+
+      function setSessionState(loggedIn, user) {
+        const loginPanel = document.getElementById("admin-login-panel");
+        const dashboard = document.getElementById("admin-dashboard");
+        if (loginPanel) loginPanel.classList.toggle("hidden", loggedIn);
+        if (dashboard) dashboard.classList.toggle("hidden", !loggedIn);
+      }
+
+      async function loadSession() {
+        const response = await fetchJson("/api/admin/session");
+        setSessionState(Boolean(response.loggedIn), response.user);
+        return Boolean(response.loggedIn);
+      }
+
+      async function loadProducts() {
+        const response = await fetchJson("/api/products");
+        inventory = Array.isArray(response) ? response : [];
+        renderInventory();
+        updateInventoryCount();
+        const categories = [...new Set(inventory.map((item) => item.category).filter(Boolean))];
+        if (categories.length) serverCategories = categories;
+        else serverCategories = [...defaultCategories];
+        renderCategoryOptions();
+      }
+
+      function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result || ""));
+          reader.onerror = () => reject(new Error("No se pudo leer la foto seleccionada."));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      document.getElementById("toggle-admin-password").addEventListener("click", (event) => {
+        const button = event.currentTarget;
+        const passwordInput = document.getElementById("admin-password");
+        const showPassword = passwordInput.type === "password";
+        passwordInput.type = showPassword ? "text" : "password";
+        button.textContent = showPassword ? "Ocultar" : "Mostrar";
+        button.setAttribute("aria-pressed", String(showPassword));
+      });
+
+      async function saveProductRecord(data, file, resetEditor = true) {
+        if (!String(data.name || "").trim() && data.id !== "demo-product") {
+          throw new Error("El nombre del producto es obligatorio.");
+        }
+        const payload = {
+          id: data.id || undefined,
+          name: String(data.name || "").trim(),
+          category: String(data.category || defaultCategories[0]).trim(),
+          price: Number(data.price) || 0,
+          image: data.image || "",
+          availability: data.availability || "available",
+          stock: Number(data.stock) || 0,
+          featured: Boolean(data.featured)
+        };
+
+        if (file) {
+          payload.image = await readFileAsDataUrl(file);
+        } else if (!payload.image && data.id) {
+          const current = inventory.find((item) => item.id === data.id);
+          payload.image = current?.image || "";
+        }
+
+        const result = await fetchJson("/api/products", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        if (result?.product) {
+          const index = inventory.findIndex((item) => item.id === result.product.id);
+          if (index >= 0) inventory[index] = result.product;
+          else inventory.unshift(result.product);
+        }
+        renderInventory();
+        updateInventoryCount();
+        if (resetEditor) resetForm();
+        if (resetEditor) showToast("Producto guardado.");
+      }
+
+      async function updateStock(productId, delta) {
+        const product = inventory.find((item) => item.id === productId);
+        if (!product) return;
+        const nextStock = Math.max(0, Number(product.stock || 0) + delta);
+        await saveProductRecord({
+          ...product,
+          stock: nextStock,
+          availability: nextStock > 10 ? "available" : nextStock > 0 ? "few" : "sold-out"
+        }, null, false);
+      }
+
+      async function deleteProduct(productId) {
+        const product = inventory.find((item) => item.id === productId);
+        if (!product) return;
+
+        const confirmed = window.confirm(`¿Eliminar ${product.name || "este producto"}? Esta acción no se puede deshacer.`);
+        if (!confirmed) return;
+
+        await fetchJson(`/api/products/${encodeURIComponent(productId)}`, { method: "DELETE" });
+        inventory = inventory.filter((item) => item.id !== productId);
+        if (document.getElementById("product-id").value === productId) resetForm();
+        renderInventory();
+        updateInventoryCount();
+        showToast("Producto eliminado.");
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const payload = {
+          username: String(formData.get("username") || "").trim(),
+          password: String(formData.get("password") || "")
+        };
+
+        try {
+          await fetchJson("/api/admin/login", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          await loadSession();
+          await loadProducts();
+          if (document.getElementById("admin-login-form")) document.getElementById("admin-login-form").reset();
+          showToast("Sesión iniciada.");
+        } catch (error) {
+          showToast(error.message || "Credenciales inválidas.");
+        }
+      }
+
+      async function handleLogout() {
+        try {
+          await fetchJson("/api/admin/logout", { method: "POST" });
+          setSessionState(false, null);
+          showToast("Sesión cerrada.");
+        } catch (error) {
+          showToast("No se pudo cerrar la sesión.");
+        }
+      }
+
+      async function handlePublish() {
+        try {
+          await fetchJson("/api/admin/publish", { method: "POST" });
+          showToast("Tienda publicada.");
+        } catch (error) {
+          showToast(error.message || "No se pudo publicar la tienda.");
+        }
+      }
+
+      document.getElementById("admin-login-form").addEventListener("submit", handleLogin);
+      document.getElementById("logout-button").addEventListener("click", handleLogout);
+      document.getElementById("publish-button").addEventListener("click", handlePublish);
+      document.getElementById("add-product-button").addEventListener("click", () => {
+        resetForm();
+        document.getElementById("product-name").focus();
+      });
+      document.getElementById("cancel-edit").addEventListener("click", resetForm);
+      document.getElementById("refresh-products").addEventListener("click", async () => {
+        try {
+          await loadProducts();
+          showToast("Inventario actualizado.");
+        } catch (error) {
+          showToast(error.message || "No se pudo cargar el inventario.");
+        }
+      });
+
+      document.getElementById("product-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const fileInput = document.getElementById("product-image");
+        const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+        const formData = new FormData(event.currentTarget);
+        const payload = Object.fromEntries(formData.entries());
+        payload.featured = document.getElementById("product-featured").checked;
+        if (payload.id && !file && fileInput.dataset.currentValue) {
+          payload.image = fileInput.dataset.currentValue;
+        }
+        try {
+          await saveProductRecord(payload, file);
+        } catch (error) {
+          showToast(error.message || "No se pudo guardar el producto.");
+        }
+      });
+
+      document.addEventListener("click", async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        const action = target.closest("[data-stock-action]");
+        if (action) {
+          const productId = action.getAttribute("data-product-id");
+          const delta = action.getAttribute("data-stock-action") === "increment" ? 1 : -1;
+          try {
+            await updateStock(productId, delta);
+            showToast("Stock actualizado.");
+          } catch (error) {
+            showToast(error.message || "No se pudo ajustar el stock.");
+          }
+          return;
+        }
+
+        const editButton = target.closest("[data-edit-product]");
+        if (editButton) {
+          const product = inventory.find((entry) => entry.id === editButton.getAttribute("data-edit-product"));
+          if (product) fillForm(product);
+          return;
+        }
+
+        const deleteButton = target.closest("[data-delete-product]");
+        if (deleteButton) {
+          try {
+            await deleteProduct(deleteButton.getAttribute("data-delete-product"));
+          } catch (error) {
+            showToast(error.message || "No se pudo eliminar el producto.");
+          }
+        }
+      });
+
+      document.getElementById("product-image").addEventListener("change", (event) => {
+        if (event.target.files && event.target.files[0]) {
+          event.target.dataset.currentValue = "";
+        }
+      });
+
+      renderCategoryOptions();
+      resetForm();
+      loadSession()
+        .then((loggedIn) => loggedIn ? loadProducts() : undefined)
+        .catch((error) => showToast(error.message || "No se pudo conectar con el servidor."));
+    })();
+  </script>
+</body>
+</html>

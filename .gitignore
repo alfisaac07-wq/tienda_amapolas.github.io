@@ -1,0 +1,7 @@
+node_modules/
+.env
+.env.*
+!.env.example
+data/amapolas.db
+data/amapolas.db-shm
+data/amapolas.db-wal
